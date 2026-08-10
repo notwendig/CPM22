@@ -1,0 +1,40 @@
+# CMake / IDE build trees
+/build/
+/build-*/
+/cmake-build-*/
+CMakeLists.txt.user*
+CMakeUserPresets.json
+compile_commands.json
+
+# Compiler / linker artifacts
+*.o
+*.obj
+*.a
+*.so
+*.so.*
+*.dll
+*.exe
+*.pdb
+*.core
+core
+core.*
+
+# Generated CP/M / zmac artifacts outside normal build trees
+/zout/
+/generated/
+*.cim
+*.lst
+
+# Patch / merge leftovers
+*.orig
+*.rej
+
+# Editors / OS
+.vscode/
+.idea/
+*~
+*.autosave
+.*.swp
+.DS_Store
+.directory
+Thumbs.db

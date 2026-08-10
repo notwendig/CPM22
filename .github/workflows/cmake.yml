@@ -1,0 +1,66 @@
+name: CMake CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.build_type }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Debug, Release]
+
+    steps:
+      - name: Checkout CPM22
+        uses: actions/checkout@v6
+        with:
+          path: CPM22
+
+      - name: Checkout Z80 dependency
+        uses: actions/checkout@v6
+        with:
+          repository: notwendig/z80
+          path: Z80
+          token: ${{ secrets.Z80_REPOSITORY_TOKEN || github.token }}
+
+      - name: Checkout zmac
+        uses: actions/checkout@v6
+        with:
+          repository: gp48k/zmac
+          path: _tools/zmac
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            bison \
+            build-essential \
+            cmake \
+            ninja-build
+
+      - name: Build zmac
+        run: |
+          make -C _tools/zmac/src -j1
+          echo "${GITHUB_WORKSPACE}/_tools/zmac/src" >> "${GITHUB_PATH}"
+
+      - name: Configure CPM22
+        run: |
+          cmake -S CPM22 -B CPM22/build/ci -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DZ80_SOURCE_DIR="${GITHUB_WORKSPACE}/Z80" \
+            -DCPM22_WARNINGS_AS_ERRORS=ON \
+            -DBUILD_TESTING=ON
+
+      - name: Build CPM22
+        run: cmake --build CPM22/build/ci --parallel
+
+      - name: Test build artifacts
+        run: ctest --test-dir CPM22/build/ci --output-on-failure
