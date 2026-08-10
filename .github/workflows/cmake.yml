@@ -20,19 +20,19 @@ jobs:
 
     steps:
       - name: Checkout CPM22
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: CPM22
 
       - name: Checkout Z80 dependency
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: notwendig/z80
           path: Z80
           token: ${{ secrets.Z80_REPOSITORY_TOKEN || github.token }}
 
       - name: Checkout zmac
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: gp48k/zmac
           path: _tools/zmac
