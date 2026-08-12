@@ -341,6 +341,7 @@ void IntelCPU::powercycle(void)
     setPower(false);
     initBIOS();
     setPower(true);
+    setMHz(0);
 }
 
 

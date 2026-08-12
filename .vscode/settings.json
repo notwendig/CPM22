@@ -1,0 +1,11 @@
+{
+  "cmake.useCMakePresets": "always",
+  "cmake.configureOnOpen": false,
+  "cmake.sourceDirectory": "${workspaceFolder}",
+  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+  "C_Cpp.default.compileCommands": "${workspaceFolder}/build/Desktop_Debug/compile_commands.json",
+  "files.associations": {
+    "*.asm": "asm-collection",
+    "*.inc": "asm-collection"
+  }
+}
