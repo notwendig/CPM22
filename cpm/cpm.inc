@@ -73,10 +73,12 @@ DMAL	EQU	15			; dma-port: dma address low
 DMAH	EQU	16			; dma-port: dma address high
 DPBL	EQU 17			; dpb low
 DPBH	EQU 18			; dpb high
+EXBIOS  EQU 20          ; CBIOS Extention
 ; RESET	EQU	19			; System reset
 
 CTRACE	EQU 80H			; 1=set, 0=unset trace
 BREAKL	EQU 81H			; break-point low
 BREAKH	EQU 82H			; break-point high
 CBREAK	EQU	83H			; 1=set, 0=clr breakpoint
+
 

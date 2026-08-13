@@ -15,52 +15,56 @@ option(CPM22_WARNINGS_AS_ERRORS "Treat CPM22 compiler warnings as errors" OFF)
 find_package(Threads REQUIRED)
 
 # ---------------------------------------------------------------------------
-# Z80 emulator library
+# Z80 emulator library - Git submodule
 #
-# Prefer an installed CMake package. For the normal zilogz80-code checkout,
-# fall back to the sibling ../Z80 source project.
+# Z80 is maintained as a git submodule of CPM22:
+#
+#   CPM22/Z80
+#
+# Initialise it after cloning with:
+#
+#   git submodule update --init --recursive
 # ---------------------------------------------------------------------------
 
 set(
     Z80_SOURCE_DIR
-    "${CMAKE_CURRENT_SOURCE_DIR}/../Z80"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Z80"
     CACHE PATH
-    "Path to a Z80 source tree used when no installed Z80 package is found"
+    "Path to the Z80 git submodule"
 )
 
-find_package(Z80 CONFIG QUIET)
+if(NOT EXISTS "${Z80_SOURCE_DIR}/CMakeLists.txt")
+    message(FATAL_ERROR
+        "Z80 git submodule is missing.\n"
+        "Run:\n"
+        "  git submodule update --init --recursive\n"
+        "Expected: ${Z80_SOURCE_DIR}"
+    )
+endif()
 
-if(NOT Z80_FOUND)
-    if(EXISTS "${Z80_SOURCE_DIR}/CMakeLists.txt")
-        set(Z80_BUILD_SHARED OFF CACHE BOOL "Build shared Z80 library" FORCE)
-        set(Z80_BUILD_STATIC ON CACHE BOOL "Build static Z80 library" FORCE)
+set(Z80_BUILD_SHARED OFF CACHE BOOL "Build shared Z80 library" FORCE)
+set(Z80_BUILD_STATIC ON CACHE BOOL "Build static Z80 library" FORCE)
 
-        if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.25")
-            # Treat Z80's public headers as external/system headers when consumed
-            # by CPM22. This keeps CPM22's warning policy strict without reporting
-            # warnings that belong to the separate Z80 project.
-            add_subdirectory(
-                "${Z80_SOURCE_DIR}"
-                "${CMAKE_CURRENT_BINARY_DIR}/_deps/Z80"
-                SYSTEM
-            )
-        else()
-            add_subdirectory(
-                "${Z80_SOURCE_DIR}"
-                "${CMAKE_CURRENT_BINARY_DIR}/_deps/Z80"
-            )
-        endif()
-    else()
-        message(FATAL_ERROR
-            "Z80 was not found.\n"
-            "Install the Z80 CMake package or set Z80_SOURCE_DIR to the Z80 source tree.\n"
-            "Expected sibling checkout: ${CMAKE_CURRENT_SOURCE_DIR}/../Z80"
-        )
-    endif()
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.25")
+    # Treat Z80's public headers as external/system headers when consumed
+    # by CPM22. This keeps CPM22's warning policy strict without reporting
+    # warnings that belong to the separate Z80 project.
+    add_subdirectory(
+        "${Z80_SOURCE_DIR}"
+        "${CMAKE_CURRENT_BINARY_DIR}/_deps/Z80"
+        SYSTEM
+    )
+else()
+    add_subdirectory(
+        "${Z80_SOURCE_DIR}"
+        "${CMAKE_CURRENT_BINARY_DIR}/_deps/Z80"
+    )
 endif()
 
 if(NOT TARGET Z80::Z80)
-    message(FATAL_ERROR "The Z80 project did not provide the required target Z80::Z80")
+    message(FATAL_ERROR
+        "Z80 submodule did not provide the required target Z80::Z80"
+    )
 endif()
 
 # ---------------------------------------------------------------------------
