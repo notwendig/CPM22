@@ -2,7 +2,7 @@
 #define INTELCPU_H
 /*
  * Declaration file for the CP/M 2.2 System Simulator.
- * Copyright (C) 2015  Juergen Willi Sievers @notwendig.
+ * Copyright (C) 2015  Juergen Willi Sievers @notwendiger.
  *
  * This file is part of libZ80 - Zilog's Z80 instruction set emulator.
  *
@@ -22,7 +22,7 @@
  *
  * If you got some questions or find bugs or parts that could be made better
  * don't hesitate to drop a line by email: <notwendig@augenpunkte.de> or also
- * by Twitter @notwendig
+ * by Twitter @notwendiger
  *
  * MANY THANKS TO Grant Searle. Thanks a lot for your wonderful documentation about ZX80 video interface.
  * Visit his grate electronic Suite at http://searle.hostei.com/grant or follow him

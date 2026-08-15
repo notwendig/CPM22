@@ -1,0 +1,11 @@
+The command options are preceded by a $. For example: 
+
+LS $UV 
+
+U - Show files from all user numbers 
+V - Verbose mode, include user number and attributes 
+S - Include system (hidden) files in the output 
+F - Show file names only (no sizes) 
+P - Pause and paginate output, on by default, use NP to disable 
+N - Negates all flags that follow
+

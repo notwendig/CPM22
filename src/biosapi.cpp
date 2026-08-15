@@ -5,7 +5,7 @@
  *      Author: juergen
  *
  * Declaration file for the cp/m disk Simulator.
- * Copyright (C) 2015  Juergen Willi Sievers @notwendig.
+ * Copyright (C) 2015  Juergen Willi Sievers @notwendiger.
  *
  *
  * CPM22 is free software; you can redistribute it and/or modify it under
@@ -24,7 +24,7 @@
  *
  * If you got some questions or find bugs or parts that could be made better
  * don't hesitate to drop a line by email: <notwendig@augenpunkte.de> or also
- * by Twitter @notwendig
+ * by Twitter @notwendiger
  *
 */
 

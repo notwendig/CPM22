@@ -8,7 +8,9 @@
       "program": "${workspaceFolder}/build/Desktop_Debug/cpm-2.2",
       "args": [
         "--diskpath",
-        "${workspaceFolder}/build/Desktop_Debug"
+        "${workspaceFolder}/build/Desktop_Debug",
+		"-l","3",
+		"-g","3"
       ],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}/build/Desktop_Debug",

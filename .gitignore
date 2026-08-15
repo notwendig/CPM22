@@ -1,5 +1,6 @@
 # CMake / IDE build trees
 /build/
+/disk/disk/
 /build-*/
 /cmake-build-*/
 CMakeLists.txt.user*
@@ -44,3 +45,4 @@ Thumbs.db
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
+/disks/disks/
