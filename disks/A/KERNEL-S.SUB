@@ -1,0 +1,90 @@
+xsub
+pip c:=i:boot.z80
+pip c:=i:os2ccp.asm
+pip c:=i:os3bdos.asm
+pip c:=i:bios.asm
+pip c:=i:cpmove.asm
+pip c:=i:header.asm
+mac c:header
+ren c:header0.hex=c:header.hex
+mac c:header $$pzsp+r
+ren c:header1.hex=c:header.hex
+c:
+a:z80asm boot/h
+a:
+pip c:relboot.hex=c:boot.hex,c:boot.hex
+genmod c:relboot.hex c:relboot.prl
+prlcom c:relboot.prl c:relboot.com
+era c:relboot.hex
+genhex c:relboot 080
+ren c:relboot0.hex=c:relboot.hex
+genhex c:relboot 180
+ren c:relboot1.hex=c:relboot.hex
+mac c:os2ccp
+ren c:os2ccp0.hex=c:os2ccp.hex
+mac c:os2ccp $$pzsz+r
+ren c:os2ccp1.hex=c:os2ccp.hex
+era c:os2ccp.asm
+era c:*.prn
+era c:*.sym
+mac c:os3bdos
+ren c:os3bdos0.hex=c:os3bdos.hex
+era c:*.prn
+era c:*.sym
+mac c:os3bdos $$pzsz+r
+ren c:os3bdos1.hex=c:os3bdos.hex
+era c:os3bdos.asm
+mac c:bios
+ren c:os4bios0.hex=c:bios.hex
+mac c:bios $$pzsz+r
+ren c:os4bios1.hex=c:bios.hex
+era c:*.prn
+era c:*.sym
+c:
+a:ddt
+f100,1a00,0
+ios2ccp0.hex
+r100
+ios3bdos0.hex
+r100
+ios4bios0.hex
+r100
+g0
+a:
+save 25 c:relcpm0.com
+genhex c:relcpm0 100
+c:
+a:ddt
+f100,1a00,0
+ios2ccp1.hex
+r0
+ios3bdos1.hex
+r0
+ios4bios1.hex
+r0
+g0
+a:
+save 25 c:relcpm1.com
+genhex c:relcpm1 200
+pip c:cpm0.hex=c:header0.hex[i],c:relboot0.hex[i],c:relcpm0.hex[h]
+pip c:cpm1.hex=c:header1.hex[i],c:relboot1.hex[i],c:relcpm1.hex[h]
+pip c:relcpm.hex=c:cpm0.hex,c:cpm1.hex
+genmod c:relcpm.hex c:relcpm.prl
+mac c:cpmove
+c:
+a:ddt
+f100,2700,0
+icpmove.hex
+r
+irelcpm.prl
+r700
+g0
+save 38 d:movcpm.com
+era os*.*
+era rel*.*
+era cpm*.*
+era header*.*
+era boot*.*
+era bios*.*a:
+a:
+

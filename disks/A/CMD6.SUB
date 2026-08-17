@@ -1,0 +1,15 @@
+xsub
+pip c:=d:pip.com
+pip c:=i:pip20pat.asm
+asm c:pip20pat
+c:
+a:ddt pip.com
+ipip20pat.hex
+r
+g0
+save 29 pip.com
+a:
+era c:pip20pat.*
+pip d:=c:pip.com
+era c:pip.com
+

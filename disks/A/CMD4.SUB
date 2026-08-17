@@ -1,0 +1,14 @@
+pip c:=i:xsub*.asm
+asm c:xsub0
+rmac c:xsub1
+link c:xsub1[os]
+xsub
+c:
+a:ddt xsub1.spr
+ixsub0.hex
+r
+g0
+save 4 d:xsub.com
+era c:xsub*.*
+a:
+

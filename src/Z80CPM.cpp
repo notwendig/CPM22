@@ -57,9 +57,9 @@ ofstream nullstream("/dev/null");
 static string console("/usr/bin/plink -fg green -bg black -T \"CP/M 2.2\" -load CPM22");
 static string host("localhost");
 #ifdef CPM22_DEFAULT_DISKPATH
-static string disks(CPM22_DEFAULT_DISKPATH);
+string diskspath(CPM22_DEFAULT_DISKPATH);
 #else
-static string disks(string(getenv("HOME")) + string("/.cpm"));
+string diskspath(string(getenv("HOME")) + string("/.cpm"));
 #endif
 static string rcfile(string(getenv("HOME")) + string("/.cpmrc"));
 static string procname;
@@ -105,7 +105,7 @@ int main(int argc, char** argv)
             break;
 
         case 'd': // disk path
-            disks = optarg;
+            diskspath = optarg;
             break;
 
         case 'c': // console
@@ -166,11 +166,11 @@ int main(int argc, char** argv)
               << "debug=" << debug << endl
               << "console" << console << endl
               << "host" << host << ':' << port << endl
-              << "disks" << disks << endl
+              << "disks" << diskspath << endl
               << "rcfile" << rcfile << endl
               << "z80mhz" << z80mhz << endl;
 
-    if (chdir(disks.c_str()))
+    if (chdir(diskspath.c_str()))
     {
         perror("Can't change to cpm base directory.");
         return -1;

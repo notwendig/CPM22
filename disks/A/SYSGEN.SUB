@@ -1,0 +1,30 @@
+d:xsub
+d:
+a:z80asm boot/h
+a:z80asm bios/h
+ddt movcpm.com
+s234
+0
+0
+0
+.
+s2cb
+0
+0
+0
+.
+i64 *
+g
+save 34 cpm.sys
+ddt
+icpm.sys
+r
+iboot.hex
+r900
+ibios.hex
+r2580
+g0
+save 34 cpm64.sys
+a:
+; now use d:sysgen d:cpm64.sys
+

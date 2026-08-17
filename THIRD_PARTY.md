@@ -13,8 +13,8 @@ repository.
 Areas requiring particular review include:
 
 - `cpm/` — reconstructed CP/M 2.2 source and related assembler material.
-- `disks/drivea/` — historical CP/M utilities and binaries.
-- `disks/drived/` — Turbo Pascal program files, messages, overlays, examples, and tools.
+- `disks/A/` — historical CP/M utilities and binaries.
+- `disks/D/` — Turbo Pascal program files, messages, overlays, examples, and tools.
 - `doc/` — historical manuals and PDF documentation.
 
 ## Build dependencies

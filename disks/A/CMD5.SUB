@@ -1,0 +1,15 @@
+xsub
+pip c:=d:ed.com
+pip c:=i:ed20pat.asm
+asm c:ed20pat
+c:
+a:ddt ed.com
+ied20pat.hex
+r
+g0
+save 26 ed.com
+a:
+era c:ed20pat.*
+pip d:=c:ed.com
+era c:ed.com
+

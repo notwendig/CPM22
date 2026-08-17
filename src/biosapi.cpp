@@ -162,51 +162,53 @@ void disk::readhost(const string dpath)
         }
     };
 
-    std::unique_ptr<DIR, DirCloser> dir(opendir(dpath.c_str()));
-    if(!dir)
+    // Import one host directory as one CP/M user area.
+    const auto readuser = [this](const string& userpath, cpmdir::status_t userno)
     {
-        const int error = errno;
-        LOG(LERR) << "Can't open host directory " << dpath << endl;
-        throw std::system_error(error, std::generic_category(), "opendir " + dpath);
-    }
-
-    for(;;)
-    {
-        errno = 0;
-        struct dirent *result = readdir(dir.get());
-        if(!result)
+        std::unique_ptr<DIR, DirCloser> dir(opendir(userpath.c_str()));
+        if(!dir)
         {
             const int error = errno;
-            if(error != 0)
-                throw std::system_error(error, std::generic_category(), "readdir " + dpath);
-            break;
+            LOG(LERR) << "Can't open host directory " << userpath << endl;
+            throw std::system_error(error, std::generic_category(), "opendir " + userpath);
         }
 
-        cpmdir::status_t userno = cpmdir::CPMUSRNO;
-        string filename = dpath + "/" + result->d_name;
-
-        struct stat filestat;
-        if(stat(filename.c_str(), &filestat))
+        for(;;)
         {
-            const int error = errno;
-            throw std::system_error(error, std::generic_category(), "stat " + filename);
-        }
+            errno = 0;
+            struct dirent *result = readdir(dir.get());
+            if(!result)
+            {
+                const int error = errno;
+                if(error != 0)
+                    throw std::system_error(error, std::generic_category(), "readdir " + userpath);
+                break;
+            }
 
-        // File found
-        if(S_ISREG(filestat.st_mode))
-        {
-            char *dname;
-            // Check for xx_ number at beginning of the directory name.
-            unsigned long u = strtoul(result->d_name, &dname, 10);
-            if(dname > result->d_name && *dname++ == '_')
-                userno = static_cast<cpmdir::status_t>(u & 0xFF);
-            else
-                dname = result->d_name;
+            if(!strcmp(result->d_name, ".") || !strcmp(result->d_name, ".."))
+                continue;
 
-            // not allowed on cp/m file names
+            const string filename = userpath + "/" + result->d_name;
+
+            struct stat filestat;
+            if(stat(filename.c_str(), &filestat))
+            {
+                const int error = errno;
+                throw std::system_error(error, std::generic_category(), "stat " + filename);
+            }
+
+            // Only regular files are CP/M files. Nested directories are ignored.
+            if(!S_ISREG(filestat.st_mode))
+            {
+                LOG(LINF) << "skip " << filename << endl;
+                continue;
+            }
+
+            const char *dname = result->d_name;
+
+            // not allowed on CP/M file names
             static const char noname[] = " <>,;:=?*[].";
 
-            string uname = dpath + '/' + result->d_name;
             string cpmname("            ");
             int i;
 
@@ -214,31 +216,58 @@ void disk::readhost(const string dpath)
             for(i = 0; i < 8 && *dname && !strchr(noname, *dname); i++, dname++)
                 cpmname[i] = static_cast<char>(toupper(static_cast<unsigned char>(*dname)));
 
-            // skip all files starting with unallowed character.
-            // first character must fit cp/m name convention
+            // skip all files starting with an unallowed character.
             if(!i)
                 continue;
 
             while(*dname && *dname != '.')
                 dname++;
 
-            i = 0;
             // if first unallowed character was the dot then file extension follows
             if(*dname == '.')
             {
                 dname++;
                 cpmname[8] = '.';
-                for(; i < 3 && *dname && !strchr(noname, *dname); i++, dname++)
+                for(i = 0; i < 3 && *dname && !strchr(noname, *dname); i++, dname++)
                     cpmname[9+i] = static_cast<char>(toupper(static_cast<unsigned char>(*dname)));
             }
 
-            // add the file to the CP/M directory
-            addfile(uname, userno, cpmname);
+            addfile(filename, userno, cpmname);
         }
-        else
+    };
+
+    // New host layout:
+    //
+    //   <drive>/FILE.EXT       -> CP/M user 0
+    //   <drive>/1/FILE.EXT     -> CP/M user 1
+    //   ...
+    //   <drive>/15/FILE.EXT    -> CP/M user 15
+    //
+    // First import regular files in the drive root as user 0.
+    readuser(dpath, cpmdir::CPMUSRNO);
+
+    // Then import numeric user directories 1..15 when present.
+    for(unsigned user = 1; user <= 15; ++user)
+    {
+        const string userpath = dpath + "/" + std::to_string(user);
+
+        struct stat filestat;
+        if(stat(userpath.c_str(), &filestat))
         {
-            LOG(LINF) << "skip " << result->d_name << endl;
+            if(errno == ENOENT)
+                continue;
+
+            const int error = errno;
+            throw std::system_error(error, std::generic_category(), "stat " + userpath);
         }
+
+        if(!S_ISDIR(filestat.st_mode))
+        {
+            LOG(LWRN) << "skip CP/M user path (not a directory): " << userpath << endl;
+            continue;
+        }
+
+        readuser(userpath, static_cast<cpmdir::status_t>(user));
     }
 }
 

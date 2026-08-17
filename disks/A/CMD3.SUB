@@ -1,0 +1,37 @@
+pip c:=i:ddt*.asm
+mac c:ddt1asm
+ren c:ddt1asm0.hex=c:ddt1asm.hex
+mac c:ddt1asm $$pzsz+r
+ren c:ddt1asm1.hex=c:ddt1asm.hex
+era c:*.prn
+era c:*.sym
+mac c:ddt2mon
+ren c:ddt2mon0.hex=c:ddt2mon.hex
+mac c:ddt2mon $$pzsz+r
+ren c:ddt2mon1.hex=c:ddt2mon.hex
+era c:*.prn
+era c:*.sym
+pip c:relddt0.hex=c:ddt1asm0.hex[i],c:ddt2mon0.hex[h]
+pip c:relddt1.hex=c:ddt1asm1.hex[i],c:ddt2mon1.hex[h]
+pip c:relddt.hex=c:relddt0.hex,c:relddt1.hex
+genmod c:relddt.hex c:relddt.com
+genhex c:relddt 100
+era c:relddt0.hex
+ren c:relddt0.hex=c:relddt.hex
+genhex c:relddt 200
+era c:relddt1.hex
+ren c:relddt1.hex=c:relddt.hex
+mac c:ddt0mov
+ren c:ddt0mov0.hex=c:ddt0mov.hex
+mac c:ddt0mov $$pzsz+r
+ren c:ddt0mov1.hex=c:ddt0mov.hex
+era c:*.prn
+era c:*.sym
+pip c:relddt0.hex=c:relddt0.hex[i],c:ddt0mov0.hex[h]
+pip c:relddt1.hex=c:relddt1.hex[i],c:ddt0mov1.hex[h]
+pip c:relddt.hex=c:relddt0.hex,c:relddt1.hex
+genmod c:relddt.hex c:ddt.prl
+prlcom c:ddt.prl d:ddt.com
+era c:ddt*.*
+era c:rel*.*
+

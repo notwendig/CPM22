@@ -37,6 +37,7 @@
 #include <cstdint>
 #include <cstring>
 #include <exception>
+#include <filesystem>
 #include <string>
 #include <sstream>
 #include <fstream>
@@ -571,17 +572,39 @@ protected:
 
     string mkhostname(string cpmname)
     {
-        string res(path_);
-        res.append("/");
+        unsigned userno = 0;
 
-        // remove user no 00 on host files
-        if(cpmname.compare("00_"))
-            cpmname.erase(0,3);
+        // cpmdir::GetName() prefixes names with a two-digit hexadecimal
+        // CP/M user number, e.g. "00_FOO     .COM" or "0a_BAR     .TXT".
+        if(cpmname.size() >= 3 && cpmname[2] == '_')
+        {
+            const auto hexval = [](char ch) -> unsigned {
+                if(ch >= '0' && ch <= '9') return static_cast<unsigned>(ch - '0');
+                if(ch >= 'a' && ch <= 'f') return static_cast<unsigned>(ch - 'a' + 10);
+                if(ch >= 'A' && ch <= 'F') return static_cast<unsigned>(ch - 'A' + 10);
+                return 0;
+            };
 
-        for( string::const_iterator cit = cpmname.begin(); cit != cpmname.end(); cit++)
-            if( !isspace(*cit))
-                res += *cit;
-        return res;
+            userno = (hexval(cpmname[0]) << 4) | hexval(cpmname[1]);
+            cpmname.erase(0, 3);
+        }
+
+        std::filesystem::path dir(path_);
+
+        // New host layout:
+        //   CP/M user 0    -> <drive>/FILE.EXT
+        //   CP/M user 1-15 -> <drive>/<user>/FILE.EXT
+        if(userno != 0)
+            dir /= std::to_string(userno);
+
+        std::filesystem::create_directories(dir);
+
+        string filename;
+        for(const char ch : cpmname)
+            if(!isspace(static_cast<unsigned char>(ch)))
+                filename += ch;
+
+        return (dir / filename).string();
     }
 
 private:

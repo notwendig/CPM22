@@ -1,0 +1,70 @@
+pip c:trint.src=i:os5trint.src
+pip c:=i:pip.plm
+fixeof c:pip.plm
+isx
+:f0:asm80 :f2:trint.src
+:f1:plm80 :f2:pip.plm
+:f1:link :f2:pip.obj,:f2:trint.obj,:f1:x0100,:f1:plm80.lib to :f2:pip.mod
+:f1:locate :f2:pip.mod code(0100H) stacksize(100)
+:f1:cpm
+objcpm c:pip
+pip d:=c:pip.com
+era c:pip.*
+era c:trint.*
+:======================================
+pip c:=i:stat.plm
+fixeof c:stat.plm
+isx
+:f1:plm80 :f2:stat.plm
+:f1:link :f2:stat.obj,:f1:x0100,:f1:plm80.lib to :f2:stat.mod
+:f1:locate :f2:stat.mod code(0100H) stacksize(100)
+:f1:cpm
+objcpm c:stat
+pip d:=c:stat.com
+era c:stat.*
+:======================================
+pip c:=i:load.plm
+fixeof c:load.plm
+isx
+:f1:plm80 :f2:load.plm
+:f1:link :f2:load.obj,:f1:x0100,:f1:plm80.lib to :f2:load.mod
+:f1:locate :f2:load.mod code(0100H) stacksize(100)
+:f1:cpm
+objcpm c:load
+pip d:=c:load.com
+era c:load.*
+:======================================
+pip c:=i:submit.plm
+fixeof c:submit.plm
+isx
+:f1:plm80 :f2:submit.plm
+:f1:link :f2:submit.obj,:f1:x0100,:f1:plm80.lib to :f2:submit.mod
+:f1:locate :f2:submit.mod code(0100H) stacksize(100)
+:f1:cpm
+objcpm c:submit
+pip d:=c:submit.com
+era c:submit.*
+:======================================
+pip c:=i:ed.plm
+fixeof c:ed.plm
+isx
+:f1:plm80 :f2:ed.plm
+:f1:link :f2:ed.obj,:f1:x0100,:f1:plm80.lib to :f2:ed.mod
+:f1:locate :f2:ed.mod code(0100H) stacksize(100)
+:f1:cpm
+objcpm c:ed
+pip d:=c:ed.com
+era c:ed.*
+:======================================
+pip c:=i:sysgen.asm
+mac c:sysgen
+load c:sysgen
+pip d:=c:sysgen.com
+era c:sysgen.*
+:======================================
+pip d:=i:boot.z80
+pip d:=i:bios.z80
+pip d:=i:bios.asm
+pip d:=a:bye.com
+pip d:=a:sysgen.sub
+

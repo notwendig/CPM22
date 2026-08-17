@@ -1,55 +1,57 @@
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "CPM22: Debug (GDB)",
-      "type": "cppdbg",
-      "request": "launch",
-      "program": "${workspaceFolder}/build/Desktop_Debug/cpm-2.2",
-      "args": [
-        "--diskpath",
-        "${workspaceFolder}/build/Desktop_Debug",
-		"-l","3",
-		"-g","3"
-      ],
-      "stopAtEntry": false,
-      "cwd": "${workspaceFolder}/build/Desktop_Debug",
-      "environment": [],
-      "externalConsole": false,
-      "MIMode": "gdb",
-      "miDebuggerPath": "/usr/bin/gdb",
-      "setupCommands": [
-        {
-          "description": "Enable GDB pretty printing",
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        }
-      ],
-      "preLaunchTask": "CPM22: Build Debug"
-    },
-    {
-      "name": "CPM22: Debug at main (GDB)",
-      "type": "cppdbg",
-      "request": "launch",
-      "program": "${workspaceFolder}/build/Desktop_Debug/cpm-2.2",
-      "args": [
-        "--diskpath",
-        "${workspaceFolder}/build/Desktop_Debug"
-      ],
-      "stopAtEntry": true,
-      "cwd": "${workspaceFolder}/build/Desktop_Debug",
-      "environment": [],
-      "externalConsole": false,
-      "MIMode": "gdb",
-      "miDebuggerPath": "/usr/bin/gdb",
-      "setupCommands": [
-        {
-          "description": "Enable GDB pretty printing",
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        }
-      ],
-      "preLaunchTask": "CPM22: Build Debug"
-    }
-  ]
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "CPM22: Debug (GDB)",
+			"type": "cppdbg",
+			"request": "launch",
+			"program": "${workspaceFolder}/build/Desktop_Debug/cpm-2.2",
+			"args": [
+				"--diskpath",
+				"${workspaceFolder}/build/Desktop_Debug/disks",
+				"-l",
+				"3",
+				"-g",
+				"3"
+			],
+			"stopAtEntry": false,
+			"cwd": "${workspaceFolder}/build/Desktop_Debug",
+			"environment": [],
+			"externalConsole": false,
+			"MIMode": "gdb",
+			"miDebuggerPath": "/usr/bin/gdb",
+			"setupCommands": [
+				{
+					"description": "Enable GDB pretty printing",
+					"text": "-enable-pretty-printing",
+					"ignoreFailures": true
+				}
+			],
+			"preLaunchTask": "CPM22: Build Debug"
+		},
+		{
+			"name": "CPM22: Debug at main (GDB)",
+			"type": "cppdbg",
+			"request": "launch",
+			"program": "${workspaceFolder}/build/Desktop_Debug/cpm-2.2",
+			"args": [
+				"--diskpath",
+				"${workspaceFolder}/build/Desktop_Debug"
+			],
+			"stopAtEntry": true,
+			"cwd": "${workspaceFolder}/build/Desktop_Debug",
+			"environment": [],
+			"externalConsole": false,
+			"MIMode": "gdb",
+			"miDebuggerPath": "/usr/bin/gdb",
+			"setupCommands": [
+				{
+					"description": "Enable GDB pretty printing",
+					"text": "-enable-pretty-printing",
+					"ignoreFailures": true
+				}
+			],
+			"preLaunchTask": "CPM22: Build Debug"
+		}
+	]
 }

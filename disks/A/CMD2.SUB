@@ -1,0 +1,34 @@
+xsub
+pip c:=i:as*.asm
+mac c:as0com
+mac c:as1io
+mac c:as2scan
+mac c:as3sym
+mac c:as4sear
+mac c:as5oper
+mac c:as6main
+mac c:asm1420
+c:
+a:ddt
+f100,2100,0
+ias0com.hex
+r
+ias1io.hex
+r
+ias2scan.hex
+r
+ias3sym.hex
+r
+ias4sear.hex
+r
+ias5oper.hex
+r
+ias6main.hex
+r
+iasm1420.hex
+r
+g0
+save 32 d:asm.com
+era c:as*.*
+a:
+
