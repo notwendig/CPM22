@@ -36,7 +36,7 @@
 			"program": "${workspaceFolder}/build/Desktop_Debug/cpm-2.2",
 			"args": [
 				"--diskpath",
-				"${workspaceFolder}/build/Desktop_Debug"
+				"${workspaceFolder}/build/Desktop_Debug/disks"
 			],
 			"stopAtEntry": true,
 			"cwd": "${workspaceFolder}/build/Desktop_Debug",

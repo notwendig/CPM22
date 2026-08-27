@@ -14,6 +14,7 @@ option(CPM22_WARNINGS_AS_ERRORS "Treat CPM22 compiler warnings as errors" OFF)
 
 find_package(Threads REQUIRED)
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
 # ---------------------------------------------------------------------------
 # Z80 emulator library - Git submodule
 #
@@ -289,6 +290,11 @@ add_executable(CPM22
     ${CPM22_SOURCES}
     ${CPM22_ASM_SOURCES}
 )
+
+target_include_directories(CPM22 PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/Z80/src"
+)
+
 
 add_dependencies(CPM22 CPM22_images)
 

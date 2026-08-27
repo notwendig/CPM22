@@ -5,7 +5,10 @@
       "label": "CPM22: Configure Debug",
       "type": "shell",
       "command": "cmake",
-      "args": ["--preset", "debug"],
+      "args": [
+        "--preset",
+        "debug"
+      ],
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -15,13 +18,22 @@
       "label": "CPM22: Build Debug",
       "type": "shell",
       "command": "cmake",
-      "args": ["--build", "--preset", "debug", "--parallel"],
+      "args": [
+        "--build",
+        "--preset",
+        "debug",
+        "--parallel"
+      ],
       "options": {
         "cwd": "${workspaceFolder}"
       },
       "dependsOrder": "sequence",
-      "dependsOn": ["CPM22: Configure Debug"],
-      "problemMatcher": ["$gcc"],
+      "dependsOn": [
+        "CPM22: Configure Debug"
+      ],
+      "problemMatcher": [
+        "$gcc"
+      ],
       "group": {
         "kind": "build",
         "isDefault": true
@@ -31,27 +43,34 @@
       "label": "CPM22: Test Debug",
       "type": "shell",
       "command": "ctest",
-      "args": ["--preset", "debug"],
+      "args": [
+        "--preset",
+        "debug"
+      ],
       "options": {
         "cwd": "${workspaceFolder}"
       },
       "dependsOrder": "sequence",
-      "dependsOn": ["CPM22: Build Debug"],
+      "dependsOn": [
+        "CPM22: Build Debug"
+      ],
       "problemMatcher": []
     },
     {
-      "label": "CPM22: Run Debug",
+      "label": "CPM22: Run",
       "type": "shell",
       "command": "${workspaceFolder}/build/Desktop_Debug/cpm-2.2",
       "args": [
         "--diskpath",
-        "${workspaceFolder}/build/Desktop_Debug"
+        "${workspaceFolder}/build/Desktop_Debug/disks"
       ],
       "options": {
         "cwd": "${workspaceFolder}/build/Desktop_Debug"
       },
       "dependsOrder": "sequence",
-      "dependsOn": ["CPM22: Build Debug"],
+      "dependsOn": [
+        "CPM22: Build Debug"
+      ],
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",

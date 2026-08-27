@@ -64,7 +64,7 @@ string diskspath(string(getenv("HOME")) + string("/.cpm"));
 static string rcfile(string(getenv("HOME")) + string("/.cpmrc"));
 static string procname;
 static int port = 1234;
-static double z80mhz=0.0;
+static double z80mhz = 0.0;
 static struct option long_options[] = {
     {"verbos", optional_argument, 0, 'l'},   {"debug", optional_argument, 0, 'g'},
     {"diskpath", required_argument, 0, 'd'}, {"console", required_argument, 0, 'c'},
@@ -196,18 +196,22 @@ int main(int argc, char** argv)
             exit(-1);
         }
     }
+ //   else
+    {
 
-    while (!IsConnected())
-        usleep(300);
+        while (!IsConnected())
+            usleep(300);
 
-    cpu.setMHz(0.0);
-    cpu.powercycle();
+        cpu.setMHz(0.0);
+        cpu.trace(true);
+        cpu.powercycle();
 
-    moni.run();
+        moni.run();
 
-    cerr << endl << "EXIT" << endl;
+        cerr << endl << "EXIT" << endl;
 
-    cpu.setPower(false);
-    stoptelnet();
+        cpu.setPower(false);
+        stoptelnet();
+    }
     return 0;
 }
