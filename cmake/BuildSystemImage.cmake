@@ -1,17 +1,28 @@
-foreach(_required BOOT_FILE CPM_FILE BIOS_FILE OUTPUT_FILE EXPECTED_BOOT_SIZE EXPECTED_CPM_SIZE MAX_SYSTEM_SIZE)
-    if(NOT DEFINED ${_required})
+foreach(_required
+    BOOT_FILE
+    CCP_FILE
+    BDOS_FILE
+    BIOS_FILE
+    OUTPUT_FILE
+    EXPECTED_BOOT_SIZE
+    EXPECTED_CCP_SIZE
+    EXPECTED_BDOS_SIZE
+    MAX_SYSTEM_SIZE
+)
+    if(NOT DEFINED ${_required} OR "${${_required}}" STREQUAL "")
         message(FATAL_ERROR "${_required} is required")
     endif()
 endforeach()
 
-foreach(_input BOOT_FILE CPM_FILE BIOS_FILE)
+foreach(_input BOOT_FILE CCP_FILE BDOS_FILE BIOS_FILE)
     if(NOT EXISTS "${${_input}}")
         message(FATAL_ERROR "Input file does not exist: ${${_input}}")
     endif()
 endforeach()
 
 file(SIZE "${BOOT_FILE}" _boot_size)
-file(SIZE "${CPM_FILE}" _cpm_size)
+file(SIZE "${CCP_FILE}" _ccp_size)
+file(SIZE "${BDOS_FILE}" _bdos_size)
 file(SIZE "${BIOS_FILE}" _bios_size)
 
 if(NOT _boot_size EQUAL EXPECTED_BOOT_SIZE)
@@ -20,13 +31,21 @@ if(NOT _boot_size EQUAL EXPECTED_BOOT_SIZE)
     )
 endif()
 
-if(NOT _cpm_size EQUAL EXPECTED_CPM_SIZE)
+if(NOT _ccp_size EQUAL EXPECTED_CCP_SIZE)
     message(FATAL_ERROR
-        "Invalid CP/M CCP+BDOS size: ${_cpm_size} bytes; expected ${EXPECTED_CPM_SIZE} bytes"
+        "Invalid CCP size: ${_ccp_size} bytes; expected ${EXPECTED_CCP_SIZE} bytes"
     )
 endif()
 
-math(EXPR _system_size "${_boot_size} + ${_cpm_size} + ${_bios_size}")
+if(NOT _bdos_size EQUAL EXPECTED_BDOS_SIZE)
+    message(FATAL_ERROR
+        "Invalid BDOS size: ${_bdos_size} bytes; expected ${EXPECTED_BDOS_SIZE} bytes"
+    )
+endif()
+
+math(EXPR _system_size
+    "${_boot_size} + ${_ccp_size} + ${_bdos_size} + ${_bios_size}"
+)
 if(_system_size GREATER MAX_SYSTEM_SIZE)
     message(FATAL_ERROR
         "CP/M system image is too large: ${_system_size} bytes; maximum is ${MAX_SYSTEM_SIZE} bytes"
@@ -37,7 +56,11 @@ get_filename_component(_output_dir "${OUTPUT_FILE}" DIRECTORY)
 file(MAKE_DIRECTORY "${_output_dir}")
 
 execute_process(
-    COMMAND "${CMAKE_COMMAND}" -E cat "${BOOT_FILE}" "${CPM_FILE}" "${BIOS_FILE}"
+    COMMAND "${CMAKE_COMMAND}" -E cat
+            "${BOOT_FILE}"
+            "${CCP_FILE}"
+            "${BDOS_FILE}"
+            "${BIOS_FILE}"
     OUTPUT_FILE "${OUTPUT_FILE}"
     COMMAND_ERROR_IS_FATAL ANY
 )
@@ -50,5 +73,6 @@ if(NOT _written_size EQUAL _system_size)
 endif()
 
 message(STATUS
-    "CP/M system image: boot=${_boot_size}, cpm=${_cpm_size}, bios=${_bios_size}, total=${_system_size} bytes"
+    "CP/M system image: boot=${_boot_size}, ccp=${_ccp_size}, "
+    "bdos=${_bdos_size}, bios=${_bios_size}, total=${_system_size} bytes"
 )

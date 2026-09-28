@@ -9,24 +9,24 @@
 ;
 ;	jump vector for individual subroutines
 ;
-CBOOT:	JP	BOOT		;cold start
-WBOOTE: JP	WBOOT		;warm start
-		JP	CONST		;console status
-		JP	CONIN		;console character in
-		JP	CONOUT		;console character out
-		JP	LIST_		;list character out
-		JP	PUNCH		;punch character out
-		JP	READER		;reader character out
-		JP	HOME		;move head to home position
-		JP	SELDSK		;select disk
-		JP	SETTRK		;set track number
-		JP	SETSEC		;set sector number
-		JP	SETDMA		;set dma address
-		JP	READ		;read disk
-		JP	WRITE		;write disk
-		JP	LISTST		;return list status
-		JP	SECTRAN		;sector translate
-		JP  EXTENDED
+CBOOT:	JP	_BOOT		;cold start
+WBOOTE: JP	_WBOOT		;warm start
+		JP	_CONST		;console status
+		JP	_CONIN		;console character in
+		JP	_CONOUT		;console character out
+		JP	_LIST		;list character out
+		JP	_PUNCH		;punch character out
+		JP	_READER		;reader character out
+		JP	_HOME		;move head to home position
+		JP	_SELDSK		;select disk
+		JP	_SETTRK		;set track number
+		JP	_SETSEC		;set sector number
+		JP	_SETDMA		;set dma address
+		JP	_READ		;read disk
+		JP	_WRITE		;write disk
+		JP	_LISTST		;return list status
+		JP	_SECTRAN		;sector translate
+		JP  _EXTENDED
 ;
 ;	fixed data tables for four-drive standard
 ;	IBM-compatible 8" disks
@@ -133,7 +133,7 @@ SIGNON:
 		DB	'(C) 1998-2015 by Juergen Sievers'
 PROMPT:	DB	CR, LF, "Press any key to boot", 0
 ; Read CCP,BDOS
-BOOT:   DI
+_BOOT:   DI
 		LD		SP,	TBUFF		; use space below buffer for stack
 		LD		HL,SIGNON		; print message
 		LD		A,FF			; Form Feed
@@ -154,7 +154,7 @@ BOOTMSG:LD		C,A
 ;
 ;	Read only the CCP
 ;
-WBOOT:  LD	SP,80H				;use space below buffer for stack
+_WBOOT:  LD	SP,80H				;use space below buffer for stack
 		LD	B,(BDOS-CCP+127)/128	;b counts # of sectors to load
 
 BOOTOS:	LD	C,0					;select disk 0
@@ -178,7 +178,7 @@ LOAD1:					;load one more sector
 ;	drive set to 0, track set, sector set, dma address set
 		CALL	READ
 		CP		00H		;any errors?
-		JR		NZ,WBOOT;retry the entire boot if an error occurs
+		JR		NZ,_WBOOT;retry the entire boot if an error occurs
 ;	no error, move to next sector
 		POP	HL		;recall dma address
 		LD	DE,128		;dma=dma+128
@@ -222,14 +222,14 @@ GOCPM:
 ;
 ;	console status, return 0ffh if character ready, 00h if not
 ;
-CONST:	IN	A,(CONSTA)	;get console status
+_CONST:	IN	A,(CONSTA)	;get console status
 		OR	A
 		RET
 ;
 ;	console character into register a
 ;
-CONIN:	CALL	CONST
-		JR	Z,CONIN
+_CONIN:	CALL	CONST
+		JR	Z,_CONIN
 		IN	A,(CONDAT)	;get character from console
 		OR	A
 ;		OUT (CONDAT),A	; echo back
@@ -237,30 +237,30 @@ CONIN:	CALL	CONST
 ;
 ;	console character output from register c
 ;
-CONOUT: LD	A,C		;get to accumulator
+_CONOUT: LD	A,C		;get to accumulator
 		OUT	(CONDAT),A	;send character to console
 		RET
 ;
 ;	list character from register c
 ;
-LIST_:	LD	A,C		;character to register a
+_LIST:	LD	A,C		;character to register a
 		OUT	(PRTDAT),A
 		RET
 ;
 ;	return list status (0 if not ready, 0xff if ready)
 ;
-LISTST: IN	A,(PRTSTA)
+_LISTST: IN	A,(PRTSTA)
 		RET
 ;
 ;	punch character from register c
 ;
-PUNCH:	LD	A,C		;character to register a
+_PUNCH:	LD	A,C		;character to register a
 		OUT	(AUXDAT),A
 		RET
 ;
 ;	read character into register a from reader device
-;
-READER: IN	A,(AUXDAT)
+;_
+_READER: IN	A,(AUXDAT)
 		RET
 ;
 ;
@@ -269,12 +269,12 @@ READER: IN	A,(AUXDAT)
 ;	move to the track 00 position of current drive
 ;	translate this call into a settrk call with parameter 00
 ;
-HOME:	LD	C,0		;select track 0
-		JR	SETTRK		;we will move to 00 on first read/write
+_HOME:	LD	C,0		;select track 0
+		JR	_SETTRK		;we will move to 00 on first read/write
 ;
 ;	select disk given by register C
 ;	return 0 on A and z-flag if no error
-SELDSK:
+_SELDSK:
 		LD	HL,0000H	;error return code
 		LD	A,C
 		CP	4			;must be between 0 and 3
@@ -303,20 +303,20 @@ CALCDB:	LD	L,A			;L=disk number 0,1,2,3
 
 ;	set track given by register c
 ;
-SETTRK: LD	A,C
+_SETTRK: LD	A,C
 		OUT	(FDCT),A
 		JR	STATUS
 ;
 ;	set sector given by register c
 ;
-SETSEC: LD	A,C
+_SETSEC: LD	A,C
 		OUT	(FDCS),A
 		JR	STATUS
 ;
 ;	translate the sector given by BC using the
 ;	translate table given by DE
 ;
-SECTRAN:
+_SECTRAN:
 		EX	DE,HL		;HL=.trans
 		ADD	HL,BC		;HL=.trans(sector)
 		LD	L,(HL)		;L = trans(sector)
@@ -325,7 +325,7 @@ SECTRAN:
 ;
 ;	set dma address given by registers b and c
 ;
-SETDMA: LD	A,C		;low order address
+_SETDMA: LD	A,C		;low order address
 		OUT	(DMAL),A
 		LD	A,B		;high order address
 		OUT	(DMAH),A	;in dma
@@ -333,12 +333,12 @@ SETDMA: LD	A,C		;low order address
 ;
 ;	perform read operation
 ;
-READ:	XOR	A		;read command -> A
+_READ:	XOR	A		;read command -> A
 		JR	WAITIO	;to perform the actual i/o
 ;
 ;	perform a write operation
 ;
-WRITE:	LD	A,1		;write command -> A
+_WRITE:	LD	A,1		;write command -> A
 ;
 ;	enter here from read and write to perform the actual i/o
 ;	operation.  return a 00h in register a if the operation completes
@@ -354,7 +354,7 @@ STATUS:	IN	A,(FDCST)	;status of i/o operation -> A
 		OR	A
 		RET
 
-EXTENDED:OUT (EXBIOS),A
+_EXTENDED:OUT (EXBIOS),A
          RET
 
 ;

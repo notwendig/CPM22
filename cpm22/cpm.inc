@@ -18,6 +18,32 @@ BIAS	EQU	(MEM-20)*1024
 CCP		EQU 3400H+BIAS	; base of ccp
 BDOS	EQU	CCP+806H	; base of bdos
 BIOS	EQU	CCP+1600H	; base of bios
+
+;
+;**************************************************************
+;*
+;*        B I O S   J U M P   T A B L E
+;*
+;**************************************************************
+;
+BOOT 	EQU BIOS + 0 *	3		;NOTE WE USE FAKE DESTINATIONS
+WBOOT 	EQU BIOS + 1 *	3
+CONST 	EQU BIOS + 2 *	3
+CONIN 	EQU BIOS + 3 *	3
+CONOUT 	EQU BIOS + 4 *	3
+LIST_ 	EQU BIOS + 5 *	3
+PUNCH 	EQU BIOS + 6 *	3
+READER 	EQU BIOS + 7 *	3
+HOME 	EQU BIOS + 8 *	3
+SELDSK 	EQU BIOS + 9 *	3
+SETTRK 	EQU BIOS + 10 *	3
+SETSEC 	EQU BIOS + 11 *	3
+SETDMA 	EQU BIOS + 12 *	3
+READ 	EQU BIOS + 13 *	3
+WRITE 	EQU BIOS + 14 *	3
+PRSTAT 	EQU BIOS + 15 *	3
+SECTRN 	EQU BIOS + 16 *	3
+
 CDISK	EQU	0004H		; current disk number 0=A,...,15=P
 TDRIVE  EQU CDISK
 IOBYTE	EQU	0003H		; intel i/o byte
