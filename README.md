@@ -13,8 +13,9 @@ directory rather than modifying the source tree.
 ## Highlights
 
 - CMake-only host build with Debug and Release presets
-- automatic CP/M 2.2, CBIOS and boot-sector assembly with `zmac`
-- automatic `.cpm22.sys` creation with size validation
+- CP/M image build isolated in the `cpm22/` CMake subdirectory
+- separate assembly of boot loader, CCP, BDOS and BIOS with `zmac`
+- automatic `.cpm22.sys` creation with component and total-size validation
 - ZEXDOC and ZEXALL assembled onto drive A
 - generated C++ boot-loader header
 - host directories exposed as CP/M drives
@@ -31,11 +32,38 @@ directory rather than modifying the source tree.
 - a C++20 compiler
 - POSIX threads
 - `zmac`
-- the Z80 CMake project/package providing `Z80::Z80`
+- the initialized `Z80/` git submodule providing `Z80::Z80`
 - PuTTY for the historical default console launcher
 
-With the usual `zilogz80-code` layout, CPM22 automatically uses the sibling `../Z80`
-source tree when no installed Z80 CMake package is available.
+Clone the repository with its submodule, or initialize it afterwards:
+
+```sh
+git clone --recurse-submodules git@github.com:notwendig/CPM22.git
+# Existing clone:
+git submodule update --init --recursive
+```
+
+If the Z80 source tree is elsewhere, configure with
+`-DZ80_SOURCE_DIR=/path/to/Z80`.
+
+## System image layout
+
+The `cpm22/` subdirectory owns the complete assembly pipeline. It creates the system
+image by concatenating the independently assembled components in this order:
+
+```text
+boot.cim + ccp.cim + bdos.cim + bios.cim -> disks/A/.cpm22.sys
+```
+
+| Component | Source | Output | Required size |
+|---|---|---|---:|
+| Boot sector | `cpm22/boot.asm` | `zout/boot.cim` | 128 bytes |
+| CCP | `cpm22/ccp.asm` | `zout/ccp.cim` | `0x806` = 2054 bytes |
+| BDOS | `cpm22/bdos.asm` | `zout/bdos.cim` | `0xDFA` = 3578 bytes |
+| BIOS | `cpm22/bios.asm` | `zout/bios.cim` | at most 896 bytes |
+
+The complete image must fit into two tracks with 26 sectors of 128 bytes each:
+`2 * 26 * 128 = 6656` bytes.
 
 ## Build
 
@@ -92,22 +120,25 @@ build/Desktop_Debug/
 │   └── boot.h
 ├── zout/
 │   ├── boot.cim
+│   ├── ccp.cim
+│   ├── bdos.cim
 │   ├── bios.cim
-│   ├── cpm22.cim
 │   ├── zexdoc.cim
 │   └── zexall.cim
 └── disks/
-    ├── drivea/
+    ├── A/
     │   ├── .cpm22.sys
     │   ├── zexdoc.com
     │   └── zexall.com
-    └── drived/
+    ├── B/
+    ├── I/
+    └── J/
 ```
 
 ## CMake targets
 
 - `CPM22` — host emulator executable (`cpm-2.2`)
-- `CPM22_images` — CP/M system image plus ZEX programs
+- `CPM22_images` — boot header, CP/M system image and ZEX programs
 - `run` — build and launch the emulator using the generated disk tree
 
 ## Console configuration

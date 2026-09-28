@@ -26,6 +26,7 @@ set(CPM22_SECTOR_SIZE       128)
 set(CPM22_BOOT_SIZE         128)
 set(CPM22_CCP_SIZE          0x806)
 set(CPM22_BDOS_SIZE         0xDFA)
+set(CPM22_BIOS_SIZE         0x280)
 
 math(EXPR CPM22_CCP_BDOS_SIZE
     "${CPM22_CCP_SIZE} + ${CPM22_BDOS_SIZE}"
