@@ -415,6 +415,207 @@ printdd_started:
 printdd_output:
                 dw      linebuf
 
+; ------------------------------------------------------------
+; PRINT40
+;
+; Schreibt einen vorzeichenlosen 40-Bit-Wert rechtsbuendig
+; mit genau dreizehn Zeichen in den lokalen linebuf und schliesst
+; mit '$' ab.
+;
+; Eingabe:
+;   HL -> 40-Bit-Wert:
+;         DB Byte0, Byte1, Byte2, Byte3, Byte4 (Little Endian)
+;   DE -> Ziel innerhalb von linebuf
+;
+; Rückgabe:
+;   HL = HL + 5
+;
+; Ergebnis:
+;   linebuf enthaelt dreizehn Zeichen und '$'; kein BDOS-Aufruf.
+;   Fuehrende Stellen sind Leerzeichen.
+;   Wertebereich 0 bis 1.099.511.627.775
+;
+; Register:
+;   AF, BC, DE, IX und IY bleiben unverändert.
+; ------------------------------------------------------------
+
+print40:
+                push    af
+                push    bc
+                push    de
+                push    ix
+                push    iy
+
+                ld      (print40_output),de
+
+                ; Wert kopieren. LDIR erhöht HL um fuenf.
+                ld      de,print40_value
+                ld      bc,5
+                ldir
+                push    hl              ; Rueckgabewert HL + 5 sichern
+
+                ld      ix,print40_powers
+                ld      b,13
+                ld      hl,(print40_output)
+
+                xor     a
+                ld      (print40_started),a
+
+print40_digit:
+                ld      d,0             ; Dezimalziffer 0 bis 9
+
+print40_subtract:
+                call    print40_compare
+                jr      c,print40_ready
+
+                call    print40_sub
+                inc     d
+                jr      print40_subtract
+
+print40_ready:
+                ld      a,d
+                or      a
+                jr      nz,print40_nonzero
+
+                ; Nach erster ausgegebener Ziffer auch Nullen
+                ; als Ziffern ausgeben.
+                ld      a,(print40_started)
+                or      a
+                jr      nz,print40_make_digit
+
+                ; Letzte Position wird immer als Null ausgegeben.
+                ld      a,b
+                cp      1
+                jr      z,print40_make_digit
+
+                ld      e,' '
+                jr      print40_emit
+
+print40_nonzero:
+                ld      a,1
+                ld      (print40_started),a
+
+print40_make_digit:
+                ld      a,d
+                add     a,'0'
+                ld      e,a
+
+print40_emit:
+                ld      (hl),e
+                inc     hl
+
+                ; Nächste 40-Bit-Zehnerpotenz
+                inc     ix
+                inc     ix
+                inc     ix
+                inc     ix
+                inc     ix
+
+                djnz    print40_digit
+
+                ld      (hl),'$'
+                pop     hl
+                pop     iy
+                pop     ix
+                pop     de
+                pop     bc
+                pop     af
+                ret
+
+
+; ------------------------------------------------------------
+; Vergleich:
+;
+;   print40_value < Wert bei IX
+;
+; Rückgabe:
+;   Carry gesetzt, wenn print40_value kleiner ist.
+; ------------------------------------------------------------
+
+print40_compare:
+                ; Bit 39 bis 32
+                ld      a,(print40_value+4)
+                cp      (ix+4)
+                ret     nz
+
+                ; Bit 31 bis 24
+                ld      a,(print40_value+3)
+                cp      (ix+3)
+                ret     nz
+
+                ; Bit 23 bis 16
+                ld      a,(print40_value+2)
+                cp      (ix+2)
+                ret     nz
+
+                ; Bit 15 bis 8
+                ld      a,(print40_value+1)
+                cp      (ix+1)
+                ret     nz
+
+                ; Bit 7 bis 0
+                ld      a,(print40_value+0)
+                cp      (ix+0)
+                ret
+
+; ------------------------------------------------------------
+; 40-Bit-Subtraktion:
+;
+;   print40_value = print40_value - Wert bei IX
+; ------------------------------------------------------------
+
+print40_sub:
+                ; Bit 7 bis 0
+                ld      a,(print40_value+0)
+                sub     (ix+0)
+                ld      (print40_value+0),a
+
+                ; Bit 15 bis 8
+                ld      a,(print40_value+1)
+                sbc     a,(ix+1)
+                ld      (print40_value+1),a
+
+                ; Bit 23 bis 16
+                ld      a,(print40_value+2)
+                sbc     a,(ix+2)
+                ld      (print40_value+2),a
+
+                ; Bit 31 bis 24
+                ld      a,(print40_value+3)
+                sbc     a,(ix+3)
+                ld      (print40_value+3),a
+
+                ; Bit 39 bis 32
+                ld      a,(print40_value+4)
+                sbc     a,(ix+4)
+                ld      (print40_value+4),a
+
+                ret
+
+; Zehnerpotenzen 10^12 bis 10^0, jeweils fuenf Bytes Little Endian.
+; Explizite Bytes vermeiden die 32-Bit-Grenze des Assemblers.
+print40_powers:
+                db      000h,010h,0a5h,0d4h,0e8h    ; 1000000000000
+                db      000h,0e8h,076h,048h,017h    ; 100000000000
+                db      000h,0e4h,00bh,054h,002h    ; 10000000000
+                db      000h,0cah,09ah,03bh,000h    ; 1000000000
+                db      000h,0e1h,0f5h,005h,000h    ; 100000000
+                db      080h,096h,098h,000h,000h    ; 10000000
+                db      040h,042h,00fh,000h,000h    ; 1000000
+                db      0a0h,086h,001h,000h,000h    ; 100000
+                db      010h,027h,000h,000h,000h    ; 10000
+                db      0e8h,003h,000h,000h,000h    ; 1000
+                db      064h,000h,000h,000h,000h    ; 100
+                db      00ah,000h,000h,000h,000h    ; 10
+                db      001h,000h,000h,000h,000h    ; 1
+
+print40_value:
+                ds      5
+print40_started:
+                db      0
+print40_output:
+                dw      linebuf+18
+
 ; Erwartete Testschleifendurchlaeufe, Format MSW, LSW.
 sollcycles:
                 dw      0,0
@@ -423,8 +624,13 @@ sollcycles:
 istcycles:
                 dw      0,0
 
+; Taktzaehler aus EXTENDED: DE = Bit 0..15, HL = Bit 16..31,
+; A = Bit 32..39.  Ablage als fuenf Bytes Little Endian.
+taktcycles:
+                ds      5
+
 linebuf:
-                ds      20              ; 8 + ',' + 8 + CR/LF + '$'
+                ds      34              ; 8 + ',' + 8 + ',' + 13 + CR/LF + '$'
 
 
 ; Ist-Zaehler fuer Testschleifendurchlaeufe um eins erhoehen.
@@ -448,8 +654,8 @@ inccycles_done:
                 ret
 
 
-; linebuf = "<soll>,<ist>\r\n$"; genau ein BDOS-Aufruf.
-; Nach "OK " folgen die Zahlen in derselben Zeile; CR/LF beendet sie.
+; linebuf = "<soll>,<ist>,<takte>\r\n$"; genau ein BDOS-Aufruf.
+; Breiten: 8, 8 und 13 Zeichen.  Nach "OK " in derselben Zeile.
 
 printcycles:
                 push    af
@@ -468,12 +674,19 @@ printcycles:
                 ld      de,linebuf+9
                 call    printdd
 
-                ld      a,13
+                ld      a,','
                 ld      (linebuf+17),a
+
+                ld      hl,taktcycles
+                ld      de,linebuf+18
+                call    print40
+
+                ld      a,13
+                ld      (linebuf+31),a
                 ld      a,10
-                ld      (linebuf+18),a
+                ld      (linebuf+32),a
                 ld      a,'$'
-                ld      (linebuf+19),a
+                ld      (linebuf+33),a
 
                 ld      de,linebuf
                 ld      c,9
@@ -1094,6 +1307,26 @@ stabd:	dd	100
 		db	07ah,04ch,011h,04fh			; expected crc
 		tmsg	'ld (<bc,de>),a................'
 
+; Clock()-Messfenster: OUT zum Zuruecksetzen bis IN zum Auslesen.
+; Enthalten sind die gesamte Testschleife (inkl. Setup, Ist-Zaehler,
+; Test-Harness und CRC-Bildung) sowie die BIOS-Aufrufe am Messrand.
+; Namensausgabe, initiales Setup, Endvergleich und Zahlenformatierung
+; liegen ausserhalb des Messfensters.  Keine reine IUT-Taktmessung.
+; AF, DE und HL werden gesichert; BC, IX und IY bleiben unberuehrt.
+readclock:
+                push    af
+                push    de
+                push    hl
+                ld      a,1             ; EXTENDED A!=0: IN liest A:HL:DE
+                call    EXTENDED
+                ld      (taktcycles),de
+                ld      (taktcycles+2),hl
+                ld      (taktcycles+4),a
+                pop     hl
+                pop     de
+                pop     af
+                ret
+
 ; start test pointed to by (hl)
 stt:	push	hl
 		ld	a,(hl)		; get pointer to test
@@ -1106,8 +1339,6 @@ stt:	push	hl
 		ld	de,0
 		ld	(istcycles),de
 		ld	(istcycles+2),de
-		xor a,a
-		call EXTENDED
 		ld	a,(hl)		; flag mask
 		ld	(flgmsk+1),a
 		inc	hl
@@ -1138,6 +1369,8 @@ stt:	push	hl
 		ld	c,9
 		call	bdos		; show test name
 		call	initcrc		; initialise crc
+		xor	a		; EXTENDED A=0: OUT setzt Clock() zurueck
+		call	EXTENDED	; Beginn des Messfensters vor der Testschleife
 ; test loop
 tlp:	call	inccycles
 		ld	a,(iut)
@@ -1153,6 +1386,7 @@ tlp2:	call	count		; increment the counter
 		call	nz,shift	; shift the scan bit
 		pop	hl		; pointer to test case
 		jp	z,tlp3		; continue while shift returned Z
+		call	readclock	; Takte sichern, bevor Vergleich/Ausgabe beginnt
 		ld	de,20+20+20
 		add	hl,de		; point to expected crc
 		call	cmpcrc
@@ -1170,7 +1404,7 @@ tlp2:	call	count		; increment the counter
 		ld	de,crlf
 tlpok:	ld	c,9
 		call	bdos
-		call	printcycles	; erst nach dem Test: Soll,Ist
+		call	printcycles	; erst nach dem Test: Soll,Ist,Takte
 		pop	hl
 		inc	hl
 		inc	hl
@@ -1580,14 +1814,13 @@ bdos_:	push	af
 		pop	af
 		ret
 
-msg1:	db	'Z80all instruction exerciser',CR,LF
-		db  '                                  |   Test cycles   ]',CR,LF
-		db	'[     Test OpCodes        |  CRC  |expected, actual ]',CR,LF,'$'
+msg1:   db      'Z80all instruction exerciser',13,10
+        db      ' Test OpCodes                  CRC  expected,  actual,  clock cycles',13,10,'$'
 msg2:	db	'Tests complete$'
 okmsg:	db	'  OK $'		; Zahlen folgen ohne vorherigen Zeilenumbruch
 ermsg1:	db	'  ERROR **** crc expected:$'
 ermsg2:	db	' found:$'
-crlf:	db	CR,LF,'$'
+crlf:	db	13,10,'$'
 
 ; compare crc
 ; hl points to value to compare to crcval
