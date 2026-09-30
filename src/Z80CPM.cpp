@@ -52,6 +52,7 @@ static IntelCPU cpu;
 
 MSGLEVEL verbosity = LOFF;
 MSGLEVEL debug = LOFF;
+bool trace = false;
 ofstream nullstream("/dev/null");
 
 static string console("/usr/bin/plink -fg green -bg black -T \"CP/M 2.2\" -load CPM22");
@@ -65,13 +66,18 @@ static string rcfile(string(getenv("HOME")) + string("/.cpmrc"));
 static string procname;
 static int port = 1234;
 static double z80mhz = 0.0;
-static struct option long_options[] = {
-    {"verbos", optional_argument, 0, 'l'},   {"debug", optional_argument, 0, 'g'},
-    {"diskpath", required_argument, 0, 'd'}, {"console", required_argument, 0, 'c'},
-    {"host", required_argument, 0, 'h'},     {"port", required_argument, 0, 'p'},
-    {"rcfile", required_argument, 0, 'r'},   {"z80mhz", required_argument, 0, 'z'},
-    {"help", no_argument, 0, '?'},           {0, 0, 0, 0}};
-static const char* short_options = "l:g:d:c:h:p:r:z:?";
+static struct option long_options[] = {{"verbos", optional_argument, 0, 'l'},
+                                       {"debug", optional_argument, 0, 'g'},
+                                       {"trace", required_argument, 0, 't'},
+                                       {"diskpath", required_argument, 0, 'd'},
+                                       {"console", required_argument, 0, 'c'},
+                                       {"host", required_argument, 0, 'h'},
+                                       {"port", required_argument, 0, 'p'},
+                                       {"rcfile", required_argument, 0, 'r'},
+                                       {"z80mhz", required_argument, 0, 'z'},
+                                       {"help", no_argument, 0, '?'},
+                                       {0, 0, 0, 0}};
+static const char* short_options = "l:g:td:c:h:p:r:z:?";
 
 int main(int argc, char** argv)
 {
@@ -102,6 +108,10 @@ int main(int argc, char** argv)
 
         case 'g': // debug level
             debug = (MSGLEVEL)atoi(optarg);
+            break;
+
+        case 't': // trace on
+            trace = true;
             break;
 
         case 'd': // disk path
@@ -143,6 +153,7 @@ int main(int argc, char** argv)
             cout << "Use:" << procname
                  << "\t[--verbos [level]]              Verbosity-level 0=off .. 3=max." << endl
                  << "\t[--debug  [level]]              Debug-level 0=off .. 3=max." << endl
+                 << "\t[--trace | t                    Z80-Trace" << endl
                  << "\t[--diskpath | -d directory]     Set base of CP/M disk-images." << endl
                  << "\t[--console | -c prog[,arg,...]] Set console terminal program and arguments."
                  << endl
@@ -164,6 +175,7 @@ int main(int argc, char** argv)
 
     LOG(LINF) << "verbosity=" << verbosity << endl
               << "debug=" << debug << endl
+              << "trace=" << trace << endl
               << "console" << console << endl
               << "host" << host << ':' << port << endl
               << "disks" << diskspath << endl
@@ -196,14 +208,14 @@ int main(int argc, char** argv)
             exit(-1);
         }
     }
- //   else
+    //   else
     {
 
         while (!IsConnected())
             usleep(300);
 
         cpu.setMHz(0.0);
-        cpu.trace(true);
+        cpu.trace(trace);
         cpu.powercycle();
 
         moni.run();

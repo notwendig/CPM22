@@ -52,6 +52,7 @@ typedef enum
     CPMPORT_DMAH = 16,		//;dma-port: dma address high
     CPMPORT_DPBL = 17,		//;dpb low
     CPMPORT_DPBH = 18,		//;dpb high
+    CPMPORT_EXBIOS = 20,		//;dpb high
 
     CPMPORT_TRACE   = 0x80, //; 1=set, 0=unset trace
     CPMPORT_BREAKL	= 0x81,	//; break-point low

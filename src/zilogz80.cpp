@@ -37,6 +37,7 @@
 
 #include <algorithm>
 #include <cerrno>
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <fstream>
@@ -201,6 +202,9 @@ void IntelCPU::Out(Z80Bus::address_t Port, Z80Bus::data_t Value)
         m_DPH = (m_DPH & 0xFF) | (Value << 8);
         m_FDCST = 0;
         break;
+	case CPMPORT_EXBIOS:
+    	clearClock();
+		break;
     case CPMPORT_TRACE:
         trace(Value);
         break;
@@ -269,6 +273,12 @@ Z80Bus::data_t IntelCPU::In(Z80Bus::address_t Port)
     case CPMPORT_DPBH: //;dpb high
         res = (m_DPH >> 8) & 0xFF;
         break;
+	case CPMPORT_EXBIOS:{
+		uint64_t clock = Clock(); 
+		regDE_[currp_].w = ((uint16_t*)&clock)[0];
+		regHL_[currp_].w = ((uint16_t*)&clock)[1];
+	}
+		break;
     case CPMPORT_TRACE:
         res = trace();
         break;

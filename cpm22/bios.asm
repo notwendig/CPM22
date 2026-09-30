@@ -25,7 +25,7 @@ WBOOTE: JP	_WBOOT		;warm start
 		JP	_READ		;read disk
 		JP	_WRITE		;write disk
 		JP	_LISTST		;return list status
-		JP	_SECTRAN		;sector translate
+		JP	_SECTRAN	;sector translate
 		JP  _EXTENDED
 ;
 ;	fixed data tables for four-drive standard
@@ -354,8 +354,12 @@ STATUS:	IN	A,(FDCST)	;status of i/o operation -> A
 		OR	A
 		RET
 
-_EXTENDED:OUT (EXBIOS),A
-         RET
+_EXTENDED:or a,a
+		jr nz,exin
+		OUT (EXBIOS),A
+        RET
+exin:	IN A,(EXBIOS)
+		RET		
 
 ;
 ;	the remainder of the CBIOS is reserved uninitialized
