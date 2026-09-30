@@ -277,7 +277,8 @@ Z80Bus::data_t IntelCPU::In(Z80Bus::address_t Port)
 		uint64_t clock = Clock(); 
 		regDE_[currp_].w = ((uint16_t*)&clock)[0];
 		regHL_[currp_].w = ((uint16_t*)&clock)[1];
-	}
+		res = ((uint8_t*)&clock)[4];
+		}
 		break;
     case CPMPORT_TRACE:
         res = trace();

@@ -1580,14 +1580,14 @@ bdos_:	push	af
 		pop	af
 		ret
 
-msg1:	db	'Z80all instruction exerciser',10,13
-		db  '                                  |   Test cycles   ]',10,13
-		db	'[     Test OpCodes        |  CRC  |expected, actual ]',10,13,'$'
+msg1:	db	'Z80all instruction exerciser',CR,LF
+		db  '                                  |   Test cycles   ]',CR,LF
+		db	'[     Test OpCodes        |  CRC  |expected, actual ]',CR,LF,'$'
 msg2:	db	'Tests complete$'
 okmsg:	db	'  OK $'		; Zahlen folgen ohne vorherigen Zeilenumbruch
 ermsg1:	db	'  ERROR **** crc expected:$'
 ermsg2:	db	' found:$'
-crlf:	db	10,13,'$'
+crlf:	db	CR,LF,'$'
 
 ; compare crc
 ; hl points to value to compare to crcval
