@@ -1,5 +1,8 @@
 # CPM22
 
+[Deutsch](README.de.md)
+
+
 [![CMake CI](https://github.com/notwendig/CPM22/actions/workflows/cmake.yml/badge.svg)](https://github.com/notwendig/CPM22/actions/workflows/cmake.yml)
 
 A host-side **CP/M 2.2 environment for the Z80**, combining a C++ emulator front end,
